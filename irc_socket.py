@@ -18,7 +18,6 @@ class irc_socket:
             self.bot = text[1].strip()[5:-1]
             self.channel = text[2].strip()[9:-1]
             os.chdir(text[3].strip()[6:-1])
-            print(self.pw, self.bot, self.channel)
         except KeyError:
             sys.exit()
 
