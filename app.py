@@ -18,7 +18,7 @@ while 1:
     # answer pings to stay connected
     if 'PING' in text:
         logger.info('Answer ping')
-        connection.sendping('PONG :tmi.twitch.tv\r\n')
+        connection.send_ping('PONG :tmi.twitch.tv\r\n')
 
     # ignore messages that aren' commands, [30: because irc comands have a ! too
     elif '!' not in text[30:]:
