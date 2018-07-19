@@ -52,8 +52,3 @@ def chopping(long_string):
         start = index
 
     return texts
-
-
-if __name__ == '__main__':
-    # just for testing
-    lookup('E:\\00-games\\Steam\\steamapps\\common\\Europa Universalis IV', 'ZAP')
