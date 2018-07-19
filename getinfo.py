@@ -1,12 +1,20 @@
+"""Methods to retreive information from save or settings.txt"""
+
 import re
 import os
 
-def get_ideas():
+import helpers
 
+def get_ideas():
+    """
+    Retrieve ideas from savegame
+    :return: String
+    """
     os.chdir('save games')
 
+    #open latest file
     save = max(os.listdir(), key=os.path.getctime)
-    with open (save, 'r') as f:
+    with open(save, 'r') as f:
         text = f.readlines()
 
     nation = text[3][8:-2]
@@ -36,8 +44,12 @@ def get_ideas():
 
 
 def get_mods():
+    """
+    Retrieve Mods
+    :return: String
+    """
 
-    with open ('settings.txt', 'r') as f:
+    with open('settings.txt', 'r') as f:
         text = f.readlines()
     text = [line.strip()[5:-1] for line in text if 'mod/' in line]
     os.chdir('mod')
@@ -57,30 +69,22 @@ def get_mods():
     mods = ', '.join(mods)
     mods = mods.replace(' [module]', '')
 
-    # for chopping the message if too long
-    # texts = []
-    # start, index = 0, 0
-    # while index >= 0:
-    #     index = mods.find(',', start + 500)
-    #     if index > 0:
-    #         texts.append(mods[start:index])
-    #     else:
-    #         texts.append(mods[start:])
-    #         break
-    #     start = index
-
     os.chdir('..')
     return mods
 
 
-def get_ae():
+def get_ae(game):
+    """
+    Retrieves AE from Save
+    :return: String
+    """
 
+    # open latest file
     os.chdir('save games')
     save = max(os.listdir(), key=os.path.getctime)
 
-    nations = []
     ae = {}
-    nation, relations, ath_relation, our_ae, got_player = False, False, False, False, True
+    nation, relations, player_relation, our_ae, got_player = False, False, False, False, True
 
     with open(save, 'r') as f:
 
@@ -104,41 +108,43 @@ def get_ae():
 
             # in active_relations we look for the player
             elif relations and player in line:
-                ath_relation = True
+                player_relation = True
 
-            # if we entered the player nation and another tag comes before 'aggressive_expansion' that nation does not have AE and we look for the next
-            elif ath_relation and re.match('([ \t]*)([A-Z]{3})(={)', line):
-                ath_relation, nation, relations = False, False, False
-
+            # if we entered the player nation and another tag comes before 'aggressive_expansion'
+            # that nation does not have AE and we look for the next
+            elif player_relation and re.match('([ \t]*)([A-Z]{3})(={)', line):
+                player_relation, nation, relations = False, False, False
 
             # we are in our relation-section and find aggressive -> look for teh value
-            elif ath_relation and 'aggressive' in line:
+            elif player_relation and 'aggressive' in line:
                 our_ae = True
-
 
             # we found the value!
             elif our_ae and 'current_opinion' in line:
-                # print(tag)
-                # print(line[line.index('=')+1:].strip())
-                # print('~~~~~~~~~~~~~~~')
                 ae[tag] = line[line.index('=') + 1:].strip()
+                nation, relations, player_relation, our_ae = False, False, False, False
 
-                nation, relations, ath_relation, our_ae = False, False, False, False
+    ae_dict = {k: float(v) for k, v in ae.items()}
+    ae_name = {helpers.lookup(game, key):value for (key, value) in ae_dict.items()}
 
-    ae = {k: float(v) for k, v in ae.items()}
-    sorted_ae = sorted(ae.items(), key=lambda kv: kv[1])
+    sorted_ae = sorted(ae_name.items(), key=lambda kv: kv[1])
 
-    ae = ""
+    ae_string = ""
     for value in sorted_ae:
         if value[1] < -10.0:
-            ae += (value[0] + ': ' + str(value[1]) + ', ')
+            ae_string += (value[0] + ': ' + str(value[1]) + ', ')
 
     os.chdir('..')
-    return (ae)
+    return ae_string
 
 
-def get_truces():
+def get_truces(game):
+    """
+    Retries Truces
+    :return: String
+    """
 
+    # open latest file
     os.chdir('save games')
     save = max(os.listdir(), key=os.path.getctime)
 
@@ -186,12 +192,19 @@ def get_truces():
                     tag = m.group(2)
                     got_tag = True
 
-            # m = re.search('(^[ \t])([A-Z]{3})(={)', line)
-
             if playersection and 'decision_seed' in line:
                 break
 
-    truces = ', '.join(tags)
+    truces = [helpers.lookup(game, tag) for tag in tags]
+    truces = ', '.join(truces)
 
     os.chdir('..')
-    return(truces)
+    return truces
+
+
+if __name__ == '__main__':
+    os.chdir('C:\\Users\\ad\\Documents\\Paradox Interactive\\Europa Universalis IV')
+    print(get_ideas())
+    print(get_ae('E:\\00-games\\Steam\\steamapps\\common\\Europa Universalis IV'))
+    print(get_truces('E:\\00-games\\Steam\\steamapps\\common\\Europa Universalis IV'))
+    print(get_mods())
