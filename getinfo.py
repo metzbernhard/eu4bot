@@ -201,10 +201,3 @@ def get_truces(game):
     os.chdir('..')
     return truces
 
-
-if __name__ == '__main__':
-    os.chdir('C:\\Users\\ad\\Documents\\Paradox Interactive\\Europa Universalis IV')
-    print(get_ideas())
-    print(get_ae('E:\\00-games\\Steam\\steamapps\\common\\Europa Universalis IV'))
-    print(get_truces('E:\\00-games\\Steam\\steamapps\\common\\Europa Universalis IV'))
-    print(get_mods())
