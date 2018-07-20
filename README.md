@@ -13,7 +13,8 @@ First up, edit the env.env file with the necessary informations:
 * path='Path to the EU4 Documents path, the one with settings.txt in it, in python format'
 * game='Path to the EU4 Game, containing eu4.exe, in python format'
 
-The tool also supports getting all or part of its parameters via the commandline. 
+The tool also supports getting all or part of its parameters via the commandline. The ones you don't provide in the command line, it'll try to retreive from the env.env file. If you for example don't want your oauth-token to be in the file as plain text you could add all informations but the oauth-token in the env.env file and call the app via `python app.py -o oauth:oauthtokenhere`
+  
 `python app.py -h`
 
 ```
