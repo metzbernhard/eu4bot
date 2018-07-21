@@ -50,6 +50,8 @@ If you have suggestions for better performance, more beautiful code ..., please 
 
 Have fun! 
 
+![example](https://github.com/metzbernhard/eu4bot/blob/master/screen1.png)
+
 ## Future plans
 
 * Maybe rewrite AE/truces getting method without generator
