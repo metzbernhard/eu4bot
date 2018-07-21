@@ -2,8 +2,12 @@
 
 import re
 import os
+import logging
 
 import helpers
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def get_ideas():
     """
@@ -12,19 +16,24 @@ def get_ideas():
     """
     os.chdir('save games')
 
-    #open latest file
+    # open latest file
     save = max(os.listdir(), key=os.path.getctime)
     with open(save, 'r') as f:
         text = f.readlines()
 
+    # get the player's tag
     nation = text[3][8:-2]
+    logger.info(f"Getting ideas for {nation}")
+
+    #get the line where nation's idea start
     indexes = [i for i in range(len(text)) if nation + '_ideas' in text[i]]
     index = indexes[0]
 
     temp = []
-    line = text[index].strip()
+    line = text[index].strip().replace(nation, 'National')
     temp.append(line)
 
+    #get the rest of the ideas
     while True:
         index = index + 1
         if '}' not in text[index]:
@@ -48,6 +57,7 @@ def get_mods():
     Retrieve Mods
     :return: String
     """
+    logger.info('getting mods')
 
     with open('settings.txt', 'r') as f:
         text = f.readlines()
@@ -73,11 +83,12 @@ def get_mods():
     return mods
 
 
-def get_ae(game):
+def get_ae(game, language):
     """
     Retrieves AE from Save
     :return: String
     """
+    logger.info('Getting Aggressive Expansion')
 
     # open latest file
     os.chdir('save games')
@@ -125,7 +136,7 @@ def get_ae(game):
                 nation, relations, player_relation, our_ae = False, False, False, False
 
     ae_dict = {k: float(v) for k, v in ae.items()}
-    ae_name = {helpers.lookup(game, key):value for (key, value) in ae_dict.items()}
+    ae_name = {helpers.lookup(game, key, language):value for (key, value) in ae_dict.items()}
 
     sorted_ae = sorted(ae_name.items(), key=lambda kv: kv[1])
 
@@ -138,11 +149,12 @@ def get_ae(game):
     return ae_string
 
 
-def get_truces(game):
+def get_truces(game, language):
     """
     Retries Truces
     :return: String
     """
+    logging.info('Getting Truces')
 
     # open latest file
     os.chdir('save games')
@@ -195,7 +207,7 @@ def get_truces(game):
             if playersection and 'decision_seed' in line:
                 break
 
-    truces = [helpers.lookup(game, tag) for tag in tags]
+    truces = [helpers.lookup(game, tag, language) for tag in tags]
     truces = ', '.join(truces)
 
     os.chdir('..')
@@ -203,8 +215,4 @@ def get_truces(game):
 
 
 if __name__ == '__main__':
-    os.chdir('C:\\Users\\ad\\Documents\\Paradox Interactive\\Europa Universalis IV')
-    print(get_ideas())
-    print(get_ae('E:\\00-games\\Steam\\steamapps\\common\\Europa Universalis IV'))
-    print(get_truces('E:\\00-games\\Steam\\steamapps\\common\\Europa Universalis IV'))
-    print(get_mods())
+    pass

@@ -22,34 +22,32 @@ class IrcSocket:
 
         try:
             print(os.getcwd())
-            with open('env.env', 'r') as env:
-                text = env.readlines()
+            data = helpers.load_config()
 
             if args.bot:
                 self.bot = args.bot
             else:
-                self.bot = text[1].strip()[5:-1]
+                self.bot = data['bot']
 
             if args.auth:
                 self.auth = args.auth
             else:
-                self.auth = text[0].strip()[7:-1]
+                self.auth = data['oauth']
 
             if args.channel:
                 self.channel = args.channel
             else:
-                self.channel = text[2].strip()[9:-1]
+                self.channel = data['channel']
 
             if args.path:
                 os.chdir(args.path)
             else:
-                os.chdir(text[3].strip()[6:-1])
+                os.chdir(data['path'])
 
         except KeyError:
+            print("Something is wrong with the provided parameters")
             sys.exit()
-        # except:
-        #     print("Something is wrong with the provided parameters")
-        #     sys.exit()
+
 
         # let's connect
         self.logger.info(f"Opening Connection to {self.channel} on Twitch IRC as {self.bot}")
@@ -78,17 +76,18 @@ class IrcSocket:
         """
         begin = 'PRIVMSG #' + self.channel + ' : '
         end = '\r\n'
-        self.logger.info(f"Sending {send_string} to {self.channel} on Twitch IRC as {self.bot}")
+        self.logger.info(f"Sending {send_string[0:30]} to {self.channel} on Twitch as {self.bot}")
 
         send = begin + send_string + end
 
-        #chopping up  strings too long for single Twitch Messages
+        #chopping up strings too long for single Twitch Messages
         if len(send) < 450:
 
             self.sock.send(str.encode(send))
 
         else:
 
+            self.logger.info(f"Chopping up a string of {len(send_string)} characters")
             for line in helpers.chopping(send_string):
 
                 self.sock.send(str.encode(begin + line + end, encoding='UTF-8'))

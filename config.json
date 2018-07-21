@@ -1,0 +1,8 @@
+{
+  "oauth": "oauth:token",
+  "bot": "Twitch account that serves as botr",
+  "channel": "Channel where you want your commands to be used",
+  "path": "Path in which you find settings.txt either with \\ or / as separator, eg C:\\Users\\USER\\Documents\\Paradox Interactive\\Europa Universalis IV",
+  "game": "Path in which you find eu4.exe either with \\ or / as separator, eg C:\\Program Files\\Steam\\Steamapps\\Europa Universalis IV1",
+  "language": "german or english"
+}
