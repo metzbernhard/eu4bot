@@ -93,7 +93,8 @@ def open_save():
     """
     save = max(os.listdir(), key=os.path.getctime)
     logger.info("Opening " + save)
-    if settings["ironman"] and not 'paperman' in save:
+    logger.info(settings["ironman"])
+    if settings["ironman"]=='True' and not 'paperman' in save:
         try:
             call([os.path.join(settings["app_dir"], settings["paperman"]), save])
             save = max(os.listdir(), key=os.path.getctime)
