@@ -9,6 +9,8 @@ I suppose you might also just use it for playing, especially the Truce and AE Li
 
 ## Setting up
 
+Download the latest release here and extract the files: https://github.com/metzbernhard/eu4bot/releases
+
 First up, edit the config.json file with the necessary informations: 
 * oauth='oauth:yourOauthToken (from the Bot)' get your oauth token here: https://twitchapps.com/tmi/
 * bot='Username of the bot' This needs to be a valid Twitch account you can get the oauth token for
