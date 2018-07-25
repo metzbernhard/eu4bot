@@ -2,9 +2,12 @@
 
 import logging
 import argparse
+import os
+import platform
 
 import getinfo
 import helpers
+from settings import SETTINGS as settings
 from ircsocket import IrcSocket
 
 def main():
@@ -15,11 +18,14 @@ def main():
 
     args = parse()
 
-    game = args.game if args.game else helpers.config_get("game")
-    language = args.language if args.language else helpers.config_get("language")
+    settings["app_dir"] = os.getcwd()
+    settings["paperman"] = settings[platform.system()]
+    settings["game"] = args.game if args.game else helpers.config_get("game")
+    settings["ironman"] = args.ironman if args.ironman else helpers.config_get("ironman")
+    settings["language"] = args.language if args.language else helpers.config_get("language")
 
     commands = {'truces': '!truces', 'ideas': '!ideas', 'ae': '!ae', 'mods': '!mods'}
-    if language == 'german':
+    if settings["language"] == 'german':
         commands['truces'] = '!waffenstillstand'
         commands['ideas'] = '!ideen'
 
@@ -68,12 +74,12 @@ def main():
             #get ae
             elif text.startswith(commands.get('ae')):
 
-                connection.send_msg(user.title() + ': ' + getinfo.get_ae(game, language))
+                connection.send_msg(user.title() + ': ' + getinfo.get_ae())
 
             #get truces
             elif text.startswith(commands.get('truces')):
 
-                connection.send_msg(user.title() + ': ' + getinfo.get_truces(game, language))
+                connection.send_msg(user.title() + ': ' + getinfo.get_truces())
 
 
 def parse():
@@ -89,6 +95,7 @@ def parse():
     parser.add_argument('-p', dest='path', action='store', help='Path to the settings.txt')
     parser.add_argument('-g', dest='game', action='store', help='Path to the EU4 Game-Directory')
     parser.add_argument('-l', dest='language', action='store', help='english or german')
+    parser.add_argument('-i', dest='ironman', action='store_true', help='ironman-flag')
 
     return parser.parse_args()
 

@@ -1,8 +1,15 @@
 """Helper functions"""
 import os
 import json
+import logging
+from subprocess import call
 
-def lookup(game, tag, language):
+from settings import SETTINGS as settings
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def lookup(tag):
     """
     Looks up nation names for tags
     :param game:
@@ -11,9 +18,9 @@ def lookup(game, tag, language):
     """
 
     temp = os.getcwd()
-    os.chdir(os.path.join(game, 'localisation'))
+    os.chdir(os.path.join(settings["game"], 'localisation'))
 
-    with open(f'countries_l_{language}.yml', 'r', encoding='UTF-8') as f:
+    with open(f'countries_l_{settings["language"]}.yml', 'r', encoding='UTF-8') as f:
         text = f.readlines()
 
     nation = ''
@@ -25,7 +32,7 @@ def lookup(game, tag, language):
 
     # for some reason 55 of the over 600 tags are in text_l_ ...
     if nation == '':
-        with open(f'text_l_{language}.yml', 'r', encoding='UTF-8') as f:
+        with open(f'text_l_{settings["language"]}.yml', 'r', encoding='UTF-8') as f:
             text = f.readlines()
         for line in text:
             if '\n ' + tag in line:
@@ -79,6 +86,23 @@ def load_config():
         return json.load(config)
 
 
-if __name__ == '__main__':
-    pass
-    # just for testing
+def open_save():
+    """
+    Open Save, either ironman or not
+    :return: text
+    """
+    save = max(os.listdir(), key=os.path.getctime)
+    logger.info("Opening " + save)
+    if settings["ironman"] and not 'paperman' in save:
+        try:
+            call([os.path.join(settings["app_dir"], settings["paperman"]), save])
+            save = max(os.listdir(), key=os.path.getctime)
+        except FileNotFoundError:
+            logger.error("It seems you did not provide paperman for removing Ironman. "
+                         "Please download it at https://gitgud.io/nixx/paperman"
+                         " and put it into the directory with app.py")
+
+    with open(save, 'r') as f:
+        text = f.readlines()
+
+    return text
