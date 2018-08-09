@@ -24,6 +24,8 @@ class IrcSocket:
             print(os.getcwd())
             data = helpers.load_config()
 
+        # setting all settings for IRC connection!
+
             if args.bot:
                 self.bot = args.bot
             else:

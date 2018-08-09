@@ -18,12 +18,14 @@ def main():
 
     args = parse()
 
+    # set our settings for this run
     settings["app_dir"] = os.getcwd()
     settings["paperman"] = settings[platform.system()]
     settings["game"] = args.game if args.game else helpers.config_get("game")
     settings["ironman"] = args.ironman if args.ironman else helpers.config_get("ironman")
     settings["language"] = args.language if args.language else helpers.config_get("language")
 
+    # language option
     commands = {'truces': '!truces', 'ideas': '!ideas', 'ae': '!ae', 'mods': '!mods'}
     if settings["language"] == 'german':
         commands['truces'] = '!waffenstillstand'
@@ -84,7 +86,7 @@ def main():
 
 def parse():
     """
-    Recovers arguments from the commandline
+    Get arguments from the commandline
     :return:
     """
     parser = argparse.ArgumentParser(description='EU4 IRC Bot')

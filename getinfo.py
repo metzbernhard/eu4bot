@@ -3,6 +3,7 @@
 import re
 import os
 import logging
+import datetime
 
 import helpers
 
@@ -28,6 +29,7 @@ def get_ideas():
     indexes = [i for i in range(len(text)) if nation + '_ideas' in text[i]]
     index = indexes[0]
 
+    # national ideas
     temp = []
     line = text[index].strip().replace(nation, 'National')
     temp.append(line)
@@ -42,6 +44,7 @@ def get_ideas():
 
     result = []
 
+    # 7 = Finished idea group
     for idea in temp:
         result.append(idea.replace('_', ' ').replace('7', 'Finished').title())
     result.append(date)
@@ -61,6 +64,7 @@ def get_mods():
     """
     logger.info('getting mods')
 
+    # get the names of the mods as given in settings.txt
     with open('settings.txt', 'r') as f:
         text = f.readlines()
     text = [line.strip()[5:-1] for line in text if 'mod/' in line]
@@ -68,6 +72,7 @@ def get_mods():
 
     mods = []
 
+    # get the pretty name from the .mod files in the mod folder
     for line in text:
         with open(line, 'r') as mod:
             text = mod.readlines()
@@ -114,7 +119,7 @@ def get_ae():
         elif not m and not nation:
             continue
 
-        # we enter the active_relations path for a ntion
+        # we enter the active_relations path for a nation
         if nation and 'active_relations' in line:
             relations = True
 
@@ -164,6 +169,7 @@ def get_truces():
     text = helpers.open_save()
 
     tags = []
+    ends = []
     date = text[1]
     player, got_tag, active, playersection, got_player = False, False, False, False, False
 
@@ -185,18 +191,37 @@ def get_truces():
         if not playersection:
             continue
 
+        # enter active relations
         if 'active_relations' in line:
             active = True
 
+        # no look for nation sections
         if active:
             m = re.search('([ \t]*)([A-Z]{3})(={)', line)
             if m:
                 tag = m.group(2)
                 got_tag = True
 
+        # found date for last war
+        if got_tag and 'last_war=' in line:
+            last_war = datetime.datetime.strptime(line.strip()[9:], '%Y.%m.%d')
+
+        # get the warscore
+        if got_tag and 'last_warscore' in line:
+            last_warscore = int(line.strip()[14:])
+
+        # no calculate truce time
         if got_tag and 'truce' in line:
 
+            #truce_days = (10*365) * (last_warscore/100)
+            # truce_days = truce_days + 5 * 365
+            truce_years = 5 + 0.1 * last_warscore
+            truce_days = truce_years * 365
+            # PDX math is weird, so we add about two months to hit most of the truces
+            truce_end = last_war + datetime.timedelta(days=truce_days+63)
+            truce_end = truce_end.strftime('%m.%Y')
             tags.append(tag)
+            ends.append(truce_end)
 
         elif got_tag and re.match('([ \t]*)([A-Z]{3})(={)', line):
 
@@ -208,9 +233,17 @@ def get_truces():
         if playersection and 'decision_seed' in line:
             break
 
+    # tags to nation names
+    tags = [helpers.lookup(tag) for tag in tags]
+    truces = []
 
-    truces = [helpers.lookup(tag) for tag in tags]
+    # append truce end
+    for idx, truce in enumerate(tags):
+        truces.append(truce + ' ~' + ends[idx])
+
+    #add savegame date
     truces.append(date)
+    # make it a single string
     truces = ', '.join(truces)
 
     os.chdir('..')
