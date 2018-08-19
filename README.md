@@ -52,9 +52,9 @@ If you have suggestions for better performance, more beautiful code ..., please 
 
 Have fun!
 
-![example](https://github.com/metzbernhard/eu4bot/blob/master/ae.png)
-![example](https://github.com/metzbernhard/eu4bot/blob/master/commands.png)
-![example](https://github.com/metzbernhard/eu4bot/blob/master/ideas.png)
-![example](https://github.com/metzbernhard/eu4bot/blob/master/mods.png)
-![example](https://github.com/metzbernhard/eu4bot/blob/master/truces.png)
-![example](https://github.com/metzbernhard/eu4bot/blob/master/uptime.png)
+![example](https://github.com/metzbernhard/eu4bot/blob/ddrjake/iae.png)
+![example](https://github.com/metzbernhard/eu4bot/blob/ddrjake/icommands.png)
+![example](https://github.com/metzbernhard/eu4bot/blob/ddrjake/iideas.png)
+![example](https://github.com/metzbernhard/eu4bot/blob/ddrjake/imods.png)
+![example](https://github.com/metzbernhard/eu4bot/blob/ddrjake/itruces.png)
+![example](https://github.com/metzbernhard/eu4bot/blob/ddrjake/iuptime.png)
