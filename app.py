@@ -1,4 +1,4 @@
-"""This module starts a forever running Python bot for EU4"""
+"""This module starts a forever running Python bot for JakeChat on IRC"""
 
 import logging
 import argparse
@@ -16,25 +16,20 @@ def main():
     opens connection and starts endless while loop for polling IRC Channel
     """
 
+    # get arguments from command line
     args = parse()
 
     # set our settings for this run
     settings["app_dir"] = os.getcwd()
     settings["paperman"] = settings[platform.system()]
+    settings["channel"] = args.game if args.game else helpers.config_get("channel")
     settings["game"] = args.game if args.game else helpers.config_get("game")
     settings["ironman"] = args.ironman if args.ironman else helpers.config_get("ironman")
     settings["language"] = args.language if args.language else helpers.config_get("language")
 
-    # language option
-    commands = {'truces': '!truces', 'ideas': '!ideas', 'ae': '!ae', 'mods': '!mods'}
-    if settings["language"] == 'german':
-        commands['truces'] = '!waffenstillstand'
-        commands['ideas'] = '!ideen'
-
     # do some logging
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
-    logging.info(commands)
 
     # open connection
     connection = IrcSocket(args)
@@ -49,12 +44,26 @@ def main():
             logger.info('Answer ping')
             connection.send_ping('PONG :tmi.twitch.tv\r\n')
 
-        # ignore messages that aren't commands
-        # only catches commmands if at the beginning of the message
-        elif ':!' not in text:
-            pass
+        # don't you dare try using commands
+        elif ' :!' in text:
+            try:
+                user = text[text.index('!') + 1:text.index('@')]
+                logger.info(user)
+            except ValueError:
+                continue
+                #some default twitch messages don't fit the bill, but don't give us a user anyway
 
-        else:
+            connection.timeout(user, 10)
+            connection.send_whisper("No public bot commands here, whisper me 'commands'.", user)
+
+
+        # one public info command
+        # elif 'WHISPER' not in text:
+        #     if ':!ryukyubot' in text:
+        #         connection.send_msg("Whisper 'commands' to ryukyubot for more information")
+        #         continue
+
+        elif 'WHISPER' in text:
             try:
                 user = text[text.index('!') + 1:text.index('@')]
             except ValueError:
@@ -63,33 +72,47 @@ def main():
 
             text = text[text.rfind(':') + 1:].strip()
 
-            # get ideas
-            if text.startswith(commands.get('ideas')):
+            # commands
+            if text.startswith('commands'):
 
-                connection.send_msg(user.title() + ': ' + getinfo.get_ideas())
+                connection.send_whisper("Whisper me 'ideas', 'ae', 'truces', 'mods' or 'uptime'", user)
+
+            # get ideas
+            elif text.startswith('ideas'):
+
+                connection.send_whisper(getinfo.get_ideas(), user)
 
             #get mods from settings
-            elif text.startswith(commands.get('mods')):
+            elif text.startswith('mods'):
 
-                connection.send_msg(user.title() + ': ' + getinfo.get_mods())
+                connection.send_whisper(getinfo.get_mods(), user)
 
             #get ae
-            elif text.startswith(commands.get('ae')):
+            elif text.startswith('ae'):
 
-                connection.send_msg(user.title() + ': ' + getinfo.get_ae())
+                connection.send_whisper(getinfo.get_ae(), user)
 
             #get truces
-            elif text.startswith(commands.get('truces')):
+            elif text.startswith('truces'):
 
-                connection.send_msg(user.title() + ': ' + getinfo.get_truces())
+                connection.send_whisper(getinfo.get_truces(), user)
+
+            #questions?
+            elif text.startswith('uptime'):
+
+                connection.send_whisper(getinfo.uptime(), user)
+
+        else:
+            continue
+
 
 
 def parse():
     """
     Get arguments from the commandline
-    :return:
+    :return: args
     """
-    parser = argparse.ArgumentParser(description='EU4 IRC Bot')
+    parser = argparse.ArgumentParser(description='IRC Quote Bot')
 
     parser.add_argument('-b', dest='bot', action='store', help='Twitch Account used as bot')
     parser.add_argument('-c', dest='channel', action='store', help='Channel you want to use')

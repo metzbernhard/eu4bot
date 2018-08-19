@@ -5,6 +5,7 @@ import os
 import sys
 import logging
 
+import settings
 import helpers
 
 class IrcSocket:
@@ -22,7 +23,7 @@ class IrcSocket:
 
         try:
             print(os.getcwd())
-            data = helpers.load_config()
+            data = settings.load_config()
 
         # setting all settings for IRC connection!
 
@@ -59,6 +60,7 @@ class IrcSocket:
         self.sock.send(str.encode('PASS ' + self.auth + '\r\n'))
         self.sock.send(str.encode('NICK ' + self.bot + '\r\n'))
         self.sock.send(str.encode('USER ' + self.bot + '\r\n'))
+        self.sock.send(str.encode('CAP REQ :twitch.tv/commands\r\n'))
         self.sock.send(str.encode('JOIN #' + self.channel + '\r\n'))
         # self.sock.send(str.encode('PRIVMSG #' + channel + ' : TEST\r\n'))
 
@@ -76,7 +78,7 @@ class IrcSocket:
         sends given message to IRC channel
         :param send_string:
         """
-        begin = 'PRIVMSG #' + self.channel + ' : '
+        begin = 'PRIVMSG #' + self.channel + ' :'
         end = '\r\n'
         self.logger.info(f"Sending {send_string[0:30]} to {self.channel} on Twitch as {self.bot}")
 
@@ -93,3 +95,39 @@ class IrcSocket:
             for line in helpers.chopping(send_string):
 
                 self.sock.send(str.encode(begin + line + end, encoding='UTF-8'))
+
+    def send_whisper(self, send_string, user):
+        """
+        Send Whisper instead of message
+        :param send_string: Text to send
+        :param user: User to whisper to
+        :return:
+        """
+
+        if len(send_string) < 450:
+
+            sending = f"PRIVMSG jtv :/w {user} {send_string}\r\n"
+            self.sock.send(str.encode(sending))
+
+        else:
+
+            self.logger.info(f"Chopping up a string of {len(send_string)} characters")
+
+            for line in helpers.chopping(send_string):
+
+                sending = f"PRIVMSG jtv :/w {user} {line}\r\n"
+                self.sock.send(str.encode(sending, encoding='UTF-8'))
+
+
+    def timeout(self, user, time):
+        """
+        Timeout command
+        :param user: User to be hit with the hammer
+        :param time: Time in seconds
+        :return:
+        """
+        time = str(10)
+        command = f'.timeout {user} {time}'
+        self.send_msg(command)
+
+

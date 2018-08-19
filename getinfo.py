@@ -4,7 +4,9 @@ import re
 import os
 import logging
 import datetime
+import urllib.request
 
+from settings import SETTINGS
 import helpers
 
 logging.basicConfig(level=logging.INFO)
@@ -248,6 +250,17 @@ def get_truces():
 
     os.chdir('..')
     return truces
+
+
+def uptime():
+    """
+    Returns uptime as String
+    :return: String
+    """
+    channel = f'https://beta.decapi.me/twitch/uptime/{SETTINGS.get("channel")}'
+    print(channel)
+    uptime = urllib.request.urlopen(channel).read()
+    return uptime.decode()
 
 
 if __name__ == '__main__':
